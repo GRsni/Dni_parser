@@ -22,7 +22,7 @@ class InputButton {
 	void renderFileName() {
 		renderFileNameBox();
 		parent.push();
-		parent.textAlign(parent.LEFT, parent.CENTER);
+		parent.textAlign(PApplet.LEFT, PApplet.CENTER);
 		parent.textSize(14);
 		parent.text(filename, inputB.pos.x + inputB.w + 10, inputB.pos.y + inputB.h / 2 - 2);
 		parent.pop();

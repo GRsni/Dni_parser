@@ -41,14 +41,14 @@ class Button {
 		parent.push();
 		parent.textSize(14);
 		parent.fill(0);
-		parent.textAlign(parent.LEFT, parent.BOTTOM);
+		parent.textAlign(PApplet.LEFT, PApplet.BOTTOM);
 		parent.text(title, pos.x + 10, pos.y - 5);
 		parent.pop();
 	}
 
 	void renderContent() {
 		parent.push();
-		parent.textAlign(parent.CENTER);
+		parent.textAlign(PApplet.CENTER);
 		parent.textSize(14);
 		parent.fill(255);
 		parent.text(content, pos.x + w / 2, pos.y + h / 2 + 4);

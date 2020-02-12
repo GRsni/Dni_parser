@@ -46,7 +46,7 @@ class InfoParser {
 		}
 
 		addAnonUserToJSON(users, ids);
-		parent.println(createRandomIndex());
+		PApplet.println(createRandomIndex());
 		ids.setString(createRandomIndex(), "u99999999");
 
 		json.setJSONObject("Users", users);
@@ -54,7 +54,7 @@ class InfoParser {
 
 		parent.saveJSONObject(json, "data/database" + System.currentTimeMillis() + ".json");
 		DniParser.avisos.add(new Aviso(parent, "Archivo para la base de datos generado", 100));
-		parent.println("Database file generated");
+		PApplet.println("Database file generated");
 	}
 
 	void appendNewAlumniToJSONFile() {
@@ -74,7 +74,7 @@ class InfoParser {
 	}
 
 	String[] getTextLines(File file) {
-		return parent.loadStrings(file);
+		return PApplet.loadStrings(file);
 	}
 
 	void addUserToJSON(JSONObject userList, JSONObject idList, String uId) {
