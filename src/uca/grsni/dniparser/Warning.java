@@ -5,7 +5,7 @@ import processing.core.PApplet;
 public class Warning {
 	PApplet parent;
 	String content;
-	int fadeout, max_life;
+	int fadeout, max_life;	
 
 	Warning(PApplet parent, String content, int fadeout) {
 		this.parent = parent;
