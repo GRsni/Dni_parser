@@ -5,17 +5,12 @@ import processing.core.*;
 import java.io.File;
 import java.util.ArrayList;
 
-import uca.grsni.dniparser.Aviso;
-import uca.grsni.dniparser.Button;
-import uca.grsni.dniparser.InputButton;
-import uca.grsni.dniparser.InfoParser;
-
 public class DniParser extends PApplet {
 	private static InputButton textHandler, JSONHandler;
 
-	private static Button createNewFile, addAlumni, extractDataFile;
-	public static InfoParser parser;
-	public static ArrayList<Aviso> avisos = new ArrayList<Aviso>();
+	private static Button createNewFile, addAlumni, extractDataFile, exitButton;
+	public static FileManager manager;
+	public static ArrayList<Warning> avisos = new ArrayList<Warning>();
 
 	public static void main(String[] args) {
 		PApplet.main(new String[] { uca.grsni.dniparser.DniParser.class.getName() });
@@ -26,7 +21,7 @@ public class DniParser extends PApplet {
 	}
 
 	public void setup() {
-		parser = new InfoParser(this);
+		manager = new FileManager(this);
 		initButtons();
 	}
 
@@ -36,6 +31,7 @@ public class DniParser extends PApplet {
 		createNewFile = new Button(this, new PVector(700, 100), "", "1", 30, 30);
 		addAlumni = new Button(this, new PVector(700, 150), "", "2", 30, 30);
 		extractDataFile = new Button(this, new PVector(700, 200), "", "3", 30, 30);
+		exitButton = new Button(this, new PVector(10, 10), "", "Salir", 40, 30);
 	}
 
 	public void draw() {
@@ -54,18 +50,21 @@ public class DniParser extends PApplet {
 			selectInput("Elige el archivo JSON:", "selectJSONFile");
 		}
 		if (createNewFile.inside(mouseX, mouseY)) {
-			parser.createNewJSONFromText();
+			manager.createNewJSONFromText();
 		}
 		if (addAlumni.inside(mouseX, mouseY)) {
-			parser.appendNewAlumniToJSONFile();
+			manager.appendNewAlumniToJSONFile();
+		}
+		if (exitButton.inside(mouseX, mouseY)) {
+			exit();
 		}
 	}
 
 	public void keyPressed() {
-		if (key == '1') {// nuevo archivo para DB
-			parser.createNewJSONFromText();
+		if (key == '1') {
+			manager.createNewJSONFromText();
 		} else if (key == '2') {
-			parser.appendNewAlumniToJSONFile();
+			manager.appendNewAlumniToJSONFile();
 		} else if (key == '3') {
 		}
 	}
@@ -75,10 +74,10 @@ public class DniParser extends PApplet {
 		fill(0);
 		textAlign(CENTER, TOP);
 		textSize(30);
-		text("Elige la opciÃ³n adecuada: ", width / 2, 30);
+		text("Elige la opción adecuada: ", width / 2, 30);
 		textSize(20);
 		text("Crear nuevo archivo para importar a la base de datos:", width / 2, 100);
-		text("AÃ±adir alumnos a la base de datos:", width / 2, 150);
+		text("Añadir alumnos a la base de datos:", width / 2, 150);
 		text("Obtener tabla de datos de los alumnos:", width / 2, 200);
 		pop();
 
@@ -91,11 +90,12 @@ public class DniParser extends PApplet {
 		createNewFile.show();
 		addAlumni.show();
 		extractDataFile.show();
+		exitButton.show();
 	}
 
 	private void updateAvisos() {
 		if (avisos.size() > 0) {
-			Aviso a = avisos.get(0);
+			Warning a = avisos.get(0);
 			a.show();
 			a.update();
 			if (a.toDestroy()) {
@@ -107,14 +107,15 @@ public class DniParser extends PApplet {
 	public void selectTextFile(File selection) {
 		if (selection == null) {
 			println("No file selected");
+			addNewWarning("Archivo no seleccionado.", 100);
 		} else {
 			String filePath = selection.getAbsolutePath();
 			println("user selected: " + filePath);
 			if (checkFileExtension(filePath, ".txt")) {
 				textHandler.setFileName(selection.getName());
-				parser.setTextFile(selection);
+				manager.setParserTextFile(selection);
 			} else {
-				avisos.add(new Aviso(this, "Error al leer el archivo de texto.", 150));
+				addNewWarning("Error al leer el archivo de texto.", 150);
 			}
 		}
 	}
@@ -122,14 +123,15 @@ public class DniParser extends PApplet {
 	public void selectJSONFile(File selection) {
 		if (selection == null) {
 			println("No file selected");
+			addNewWarning("Archivo no seleccionado.", 100);
 		} else {
 			String filePath = selection.getAbsolutePath();
 			println("user selected: " + filePath);
 			if (checkFileExtension(filePath, ".json")) {
 				JSONHandler.setFileName(selection.getName());
-				parser.setJSONFile(selection);
+				manager.setParserJSONFile(selection);
 			} else {
-				avisos.add(new Aviso(this, "Error al leer el archivo .json de la base de datos.", 150));
+				addNewWarning("Error al leer el archivo .json de la base de datos.", 150);
 			}
 		}
 	}
@@ -142,5 +144,9 @@ public class DniParser extends PApplet {
 			String extension = file.substring(lastIndex);
 			return extension.equals(ext);
 		}
+	}
+
+	public void addNewWarning(String content, int lifetime) {
+		avisos.add(new Warning(this, content, lifetime));
 	}
 }

@@ -1,96 +1,54 @@
 package uca.grsni.dniparser;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import processing.core.PApplet;
-import processing.data.JSONObject;
-
-import uca.grsni.dniparser.Aviso;
-import uca.grsni.dniparser.DniParser;
 
 class InfoParser {
-	PApplet parent;
+	DniParser parent;
 	File text, json;
 
-	public InfoParser(PApplet parent) {
+	public InfoParser(DniParser parent) {
 		this.parent = parent;
 	}
 
-	void setTextFile(File file) {
+	public void setTextFile(File file) {
 		this.text = file;
 	}
 
-	void setJSONFile(File file) {
+	public String getTextFile() {
+		return text.toString();
+	}
+
+	public void setJSONFile(File file) {
 		this.json = file;
 	}
 
-	void createNewJSONFromText() {
-		String[] lines;
-		try {
-			lines = getTextLines(text);
-		} catch (NullPointerException e) {
-			DniParser.avisos.add(new Aviso(parent, "Debes cargar un archivo de texto.", 80));
-			return;
-		}
-		JSONObject json = new JSONObject();
-		JSONObject users = new JSONObject();
-		JSONObject ids = new JSONObject();
+	public String getJSONFile() {
+		return json.toString();
+	}
 
-		int startLine = isFirstLineValid(lines);
+	public ArrayList<String> getCorrectLines() {
+		ArrayList<String> goodLines = new ArrayList<String>();
 
-		for (int i = startLine; i < lines.length; i++) {
-			if (checkForID(lines[i])) {
-				String dni = lines[i];
-				addUserToJSON(users, ids, dni);
+		String[] lines = getLinesFromText();
+		for (int i = 0; i < lines.length; i++) {
+			String possibleId = findValidIDInLine(lines[i]);
+			if (!possibleId.equals("")) {
+				goodLines.add(possibleId);
 			}
 		}
 
-		addAnonUserToJSON(users, ids);
-		PApplet.println(createRandomIndex());
-		ids.setString(createRandomIndex(), "u99999999");
-
-		json.setJSONObject("Users", users);
-		json.setJSONObject("Ids", ids);
-
-		parent.saveJSONObject(json, "data/database" + System.currentTimeMillis() + ".json");
-		DniParser.avisos.add(new Aviso(parent, "Archivo para la base de datos generado", 100));
-		PApplet.println("Database file generated");
+		return goodLines;
 	}
 
-	void appendNewAlumniToJSONFile() {
+	public String[] getLinesFromText() {
+		return PApplet.loadStrings(text);
 	}
 
-	int isFirstLineValid(String[] lines) {
-		int startLine = 0;
-		if (!checkForID(lines[0])) {
-			startLine = 1;
-		}
-		return startLine;
+	private String findValidIDInLine(String line) {
+		return UserIdExtractor.extract(line.toLowerCase());
 	}
 
-	boolean checkForID(String line) {
-		char[] lineCharArray = line.toLowerCase().toCharArray();
-		return lineCharArray[0] == 'u';
-	}
-
-	String[] getTextLines(File file) {
-		return PApplet.loadStrings(file);
-	}
-
-	void addUserToJSON(JSONObject userList, JSONObject idList, String uId) {
-		JSONObject user = new JSONObject();
-		user.setString("uId", uId);
-		user.setInt("numP", 0);
-
-		userList.setJSONObject(uId, user);
-		idList.setString(createRandomIndex(), uId);
-	}
-
-	void addAnonUserToJSON(JSONObject list, JSONObject idList) {
-		addUserToJSON(list, idList, "u99999999");
-	}
-
-	String createRandomIndex() {
-		return Long.toString(System.nanoTime()) + (int) (parent.random(1000000));
-	}
 }

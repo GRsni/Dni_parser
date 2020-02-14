@@ -14,12 +14,12 @@ class InputButton {
 		this.parent = parent;
 	}
 
-	void show() {
+	public void show() {
 		inputB.show();
 		renderFileName();
 	}
 
-	void renderFileName() {
+	private void renderFileName() {
 		renderFileNameBox();
 		parent.push();
 		parent.textAlign(PApplet.LEFT, PApplet.CENTER);
@@ -28,7 +28,7 @@ class InputButton {
 		parent.pop();
 	}
 
-	void renderFileNameBox() {
+	private void renderFileNameBox() {
 		parent.push();
 		parent.fill(100);
 		parent.noStroke();
@@ -36,15 +36,15 @@ class InputButton {
 		parent.pop();
 	}
 
-	boolean inside(float x, float y) {
+	public boolean inside(float x, float y) {
 		return inputB.inside(x, y);
 	}
 
-	void setFileName(String filename) {
+	public void setFileName(String filename) {
 		this.filename = filename;
 	}
 
-	String getFileName() {
+	public String getFileName() {
 		return filename;
 	}
 }

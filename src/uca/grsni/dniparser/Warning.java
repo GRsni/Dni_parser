@@ -2,23 +2,23 @@ package uca.grsni.dniparser;
 
 import processing.core.PApplet;
 
-public class Aviso {
+public class Warning {
 	PApplet parent;
 	String content;
 	int fadeout, max_life;
 
-	Aviso(PApplet parent, String content, int fadeout) {
+	Warning(PApplet parent, String content, int fadeout) {
 		this.parent = parent;
 		this.content = content;
 		this.fadeout = fadeout;
 		this.max_life = fadeout;
 	}
 
-	Aviso(PApplet parent, String content) {
+	Warning(PApplet parent, String content) {
 		this(parent, content, 100);
 	}
 
-	void show() {
+	public void show() {
 		parent.push();
 		parent.rectMode(PApplet.CENTER);
 		parent.stroke(211, 81, 81, PApplet.map(fadeout, max_life, 0, 255, 0));
@@ -31,11 +31,11 @@ public class Aviso {
 		parent.pop();
 	}
 
-	void update() {
+	public void update() {
 		fadeout--;
 	}
 
-	int calculateContentFill() {
+	private int calculateContentFill() {
 		if (fadeout > max_life / 2) {
 			return 255;
 		} else {
@@ -43,8 +43,7 @@ public class Aviso {
 		}
 	}
 
-	boolean toDestroy() {
+	public boolean toDestroy() {
 		return fadeout <= 0;
 	}
 }
-
