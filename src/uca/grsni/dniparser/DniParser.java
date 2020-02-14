@@ -74,10 +74,10 @@ public class DniParser extends PApplet {
 		fill(0);
 		textAlign(CENTER, TOP);
 		textSize(30);
-		text("Elige la opción adecuada: ", width / 2, 30);
+		text("Elige la opciÃ³n adecuada: ", width / 2, 30);
 		textSize(20);
 		text("Crear nuevo archivo para importar a la base de datos:", width / 2, 100);
-		text("Añadir alumnos a la base de datos:", width / 2, 150);
+		text("AÃ±adir alumnos a la base de datos:", width / 2, 150);
 		text("Obtener tabla de datos de los alumnos:", width / 2, 200);
 		pop();
 

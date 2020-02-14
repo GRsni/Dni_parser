@@ -2,7 +2,6 @@ package uca.grsni.dniparser;
 
 import processing.core.PApplet;
 import processing.data.JSONObject;
-import processing.data.JSONArray;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,8 +10,8 @@ public class FileManager {
 	public DniParser parent;
 	private InfoParser parser;
 
-	JSONObject fileObject, users;
-	JSONArray ids;
+	JSONObject fileObject;
+	ArrayList<String> validLines;
 
 	public FileManager(DniParser parent) {
 		this.parent = parent;
@@ -29,14 +28,12 @@ public class FileManager {
 
 	public void createNewJSONFromText() {
 		fileObject = new JSONObject();
-		users = new JSONObject();
-		ids = new JSONArray();
-		ArrayList<String> validLines;
+		JSONObject users = new JSONObject();
+		JSONObject ids = new JSONObject();
 
-		try {
-			validLines = parser.getCorrectLines();
-		} catch (NullPointerException e) {
-			parent.addNewWarning("Debes cargar un archivo de texto.", 80);
+		validLines = new ArrayList<String>();
+
+		if (!loadLinesFromTextFile()) {
 			return;
 		}
 
@@ -47,41 +44,80 @@ public class FileManager {
 		addAnonUserToJSON(users, ids);
 
 		fileObject.setJSONObject("Users", users);
-		fileObject.setJSONArray("Ids", ids);
+		fileObject.setJSONObject("Ids", ids);
 
-		parent.saveJSONObject(fileObject, "data/databaseFile.json");
-		parent.addNewWarning("Archivo para la base de datos generado", 100);
-		PApplet.println("Database file generated");
+		saveJSONFile(fileObject, "data/databaseFile" + System.currentTimeMillis() + ".json",
+				"Generado nuevo archivo de datos.");
 	}
 
 	public void appendNewAlumniToJSONFile() {
-		try {
-			fileObject = PApplet.loadJSONObject(parser.json);
-			users=fileObject.getJSONObject("Users");
-			ids=fileObject.getJSONArray("Ids");
-		} catch (Exception e) {
-			PApplet.print(e.toString());
-			parent.addNewWarning("Debes cargar un archivo .json.", 80);
+
+		if (!loadJSONObjectsFromFile()) {
+			return;
 		}
-		
+
+		JSONObject users = fileObject.getJSONObject("Users");
+		JSONObject ids = fileObject.getJSONObject("Ids");
+
+		if (!loadLinesFromTextFile()) {
+			return;
+		}
+
+		for (String dni : validLines) {
+			if (fileObject.getJSONObject("Users").isNull(dni)) {
+				addUserToJSON(users, ids, dni);
+			}
+		}
+		saveJSONFile(fileObject, "data/databaseFile" + System.currentTimeMillis() + ".json",
+				"Añadidos nuevos alumnos al archivo.");
 
 	}
 
-	private void addUserToJSON(JSONObject users, JSONArray ids, String uId) {
+	private boolean loadLinesFromTextFile() {
+
+		try {
+			validLines = parser.getCorrectLines();
+		} catch (NullPointerException e) {
+			System.out.println(e.toString());
+			e.printStackTrace();
+			parent.addNewWarning("Error al cargar el archivo .txt .", 80);
+			return false;
+		}
+		return true;
+	}
+
+	private boolean loadJSONObjectsFromFile() {
+		try {
+			fileObject = PApplet.loadJSONObject(parser.getJSONFile());
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			parent.addNewWarning("Error al cargar el archivo .json .", 80);
+			return false;
+		}
+		return true;
+	}
+
+	private void addUserToJSON(JSONObject users, JSONObject ids, String uId) {
 		JSONObject user = new JSONObject();
 		user.setString("uId", uId);
 		user.setInt("numP", 0);
 
-		
 		users.setJSONObject(uId, user);
-		ids.append(uId);
+		ids.setString(createRandomIndex(), uId);
 	}
 
-	private void addAnonUserToJSON(JSONObject users, JSONArray ids) {
+	private void addAnonUserToJSON(JSONObject users, JSONObject ids) {
 		addUserToJSON(users, ids, "u99999999");
 	}
 
 	private String createRandomIndex() {
 		return Long.toString(System.nanoTime()) + (int) (parent.random(1000000));
+	}	
+
+	private void saveJSONFile(JSONObject object, String filename, String warningContent) {
+		parent.saveJSONObject(object, filename);
+		parent.addNewWarning(warningContent, 100);
+		System.out.println("Database file generated");
 	}
+
 }

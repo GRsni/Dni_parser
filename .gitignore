@@ -62,6 +62,3 @@ local.properties
 
 #Don't track generated database files
 data/
-
-#Don't track the Processing library
-lib/

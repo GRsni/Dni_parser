@@ -17,16 +17,16 @@ class InfoParser {
 		this.text = file;
 	}
 
-	public String getTextFile() {
-		return text.toString();
+	public File getTextFile() {
+		return text;
 	}
 
 	public void setJSONFile(File file) {
 		this.json = file;
 	}
 
-	public String getJSONFile() {
-		return json.toString();
+	public File getJSONFile() {
+		return json;
 	}
 
 	public ArrayList<String> getCorrectLines() {
