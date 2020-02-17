@@ -7,7 +7,7 @@ public class Warning {
 	String content;
 	int fadeout, max_life;	
 
-	Warning(PApplet parent, String content, int fadeout) {
+	public Warning(PApplet parent, String content, int fadeout) {
 		this.parent = parent;
 		this.content = content;
 		this.fadeout = fadeout;

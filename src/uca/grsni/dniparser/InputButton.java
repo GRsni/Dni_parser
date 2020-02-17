@@ -9,7 +9,7 @@ class InputButton {
 
 	Button inputB;
 
-	InputButton(PApplet parent, PVector pos, String title, String content) {
+	public InputButton(PApplet parent, PVector pos, String title, String content) {
 		inputB = new Button(parent, pos, title, content, 120, 30);
 		this.parent = parent;
 	}
