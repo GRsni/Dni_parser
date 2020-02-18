@@ -4,22 +4,24 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 class Button {
-	PApplet parent;
-	String title = "", content = "";
-	PVector pos;
-	float w = 100, h = 30;
+	private PApplet parent;
+	private String title = "", content = "";
+	public PVector pos;
+	public float w = 100, h = 30;
+	private int cornerR;
 
 	public Button(PApplet parent, PVector pos, String title, String content) {
-		this(parent, pos, title, content, 100, 30);
+		this(parent, pos, title, content, 100, 30, 0);
 	}
 
-	public Button(PApplet parent, PVector pos, String title, String content, float w, float h) {
+	public Button(PApplet parent, PVector pos, String title, String content, float w, float h, int corner) {
 		this.parent = parent;
 		this.pos = pos;
 		this.title = title;
 		this.content = content;
 		this.w = w;
 		this.h = h;
+		this.cornerR=corner;
 	}
 
 	public void show() {
@@ -31,9 +33,9 @@ class Button {
 	private void renderButton() {
 		parent.push();
 		parent.strokeWeight(1);
-		parent.stroke(255);
-		parent.fill(0);
-		parent.rect(pos.x, pos.y, w, h);
+		parent.noStroke();
+		parent.fill(0, 133, 120);
+		parent.rect(pos.x, pos.y, w, h, cornerR);
 		parent.pop();
 	}
 
@@ -49,7 +51,7 @@ class Button {
 	private void renderContent() {
 		parent.push();
 		parent.textAlign(PApplet.CENTER);
-		parent.textSize(14);
+		parent.textSize(15);
 		parent.fill(255);
 		parent.text(content, pos.x + w / 2, pos.y + h / 2 + 4);
 		parent.pop();

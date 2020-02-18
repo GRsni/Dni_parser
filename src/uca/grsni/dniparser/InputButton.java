@@ -10,7 +10,7 @@ class InputButton {
 	Button inputB;
 
 	public InputButton(PApplet parent, PVector pos, String title, String content) {
-		inputB = new Button(parent, pos, title, content, 120, 30);
+		inputB = new Button(parent, pos, title, content, 120, 30, 0);
 		this.parent = parent;
 	}
 
@@ -30,9 +30,9 @@ class InputButton {
 
 	private void renderFileNameBox() {
 		parent.push();
-		parent.fill(100);
+		parent.fill(170);
 		parent.noStroke();
-		parent.rect(inputB.pos.x + inputB.w + 1, inputB.pos.y, 200, 30);
+		parent.rect(inputB.pos.x + inputB.w, inputB.pos.y, 200, 30);
 		parent.pop();
 	}
 

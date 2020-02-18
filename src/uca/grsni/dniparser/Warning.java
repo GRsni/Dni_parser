@@ -19,13 +19,23 @@ public class Warning {
 	}
 
 	public void show() {
+		renderBox();
+		renderContent();
+	}
+	
+	private void renderBox() {
 		parent.push();
 		parent.rectMode(PApplet.CENTER);
-		parent.stroke(211, 81, 81, PApplet.map(fadeout, max_life, 0, 255, 0));
+		parent.stroke(211, 81, 81, calculateContentAlpha());
 		parent.strokeWeight(5);
-		parent.fill(50, calculateContentFill());
+		parent.fill(80, calculateContentAlpha());
 		parent.rect(parent.width / 2, parent.height / 2, parent.textWidth(content) + 15, 50);
-		parent.fill(255, calculateContentFill());
+		parent.pop();
+	}
+	
+	public void renderContent() {
+		parent.push();
+		parent.fill(255, calculateContentAlpha());
 		parent.textAlign(PApplet.CENTER);
 		parent.text(content, parent.width / 2, parent.height / 2 + 10);
 		parent.pop();
@@ -35,7 +45,7 @@ public class Warning {
 		fadeout--;
 	}
 
-	private int calculateContentFill() {
+	private int calculateContentAlpha() {
 		if (fadeout > max_life / 2) {
 			return 255;
 		} else {

@@ -80,7 +80,7 @@ public class FileManager {
 		} catch (NullPointerException e) {
 			System.out.println(e.toString());
 			e.printStackTrace();
-			parent.addNewWarning("Error al cargar el archivo .txt .", 80);
+			parent.addNewWarning("Error al cargar el archivo de texto.", 80);
 			return false;
 		}
 		return true;
@@ -91,7 +91,7 @@ public class FileManager {
 			fileObject = PApplet.loadJSONObject(parser.getJSONFile());
 		} catch (Exception e) {
 			System.out.println(e.toString());
-			parent.addNewWarning("Error al cargar el archivo .json .", 80);
+			parent.addNewWarning("Error al cargar el archivo JSON.", 80);
 			return false;
 		}
 		return true;

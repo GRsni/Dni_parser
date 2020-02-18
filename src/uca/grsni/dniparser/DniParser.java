@@ -10,7 +10,7 @@ public class DniParser extends PApplet {
 
 	private static Button createNewFile, addAlumni, extractDataFile, exitButton;
 	public static FileManager manager;
-	public static ArrayList<Warning> avisos = new ArrayList<Warning>();
+	private static ArrayList<Warning> avisos = new ArrayList<Warning>();
 
 	public static void main(String[] args) {
 		PApplet.main(new String[] { uca.grsni.dniparser.DniParser.class.getName() });
@@ -21,17 +21,18 @@ public class DniParser extends PApplet {
 	}
 
 	public void setup() {
+		surface.setTitle("Manual de laboratorio: Gestor de datos");
 		manager = new FileManager(this);
 		initButtons();
 	}
 
 	public void initButtons() {
-		textHandler = new InputButton(this, new PVector(30, 450), "Archivo .txt", "Elige el archivo");
-		JSONHandler = new InputButton(this, new PVector(440, 450), "Archivo .json", "Elige el archivo");
-		createNewFile = new Button(this, new PVector(700, 100), "", "1", 30, 30);
-		addAlumni = new Button(this, new PVector(700, 150), "", "2", 30, 30);
-		extractDataFile = new Button(this, new PVector(700, 200), "", "3", 30, 30);
-		exitButton = new Button(this, new PVector(10, 10), "", "Salir", 40, 30);
+		textHandler = new InputButton(this, new PVector(30, 450), "", "Archivo .txt");
+		JSONHandler = new InputButton(this, new PVector(440, 450), "", "Archivo .json");
+		createNewFile = new Button(this, new PVector(700, 100), "", "1", 30, 30, 3);
+		addAlumni = new Button(this, new PVector(700, 150), "", "2", 30, 30, 3);
+		extractDataFile = new Button(this, new PVector(700, 200), "", "3", 30, 30, 3);
+		exitButton = new Button(this, new PVector(10, 10), "", "Salir", 40, 30, 3);
 	}
 
 	public void draw() {
@@ -150,3 +151,4 @@ public class DniParser extends PApplet {
 		avisos.add(new Warning(this, content, lifetime));
 	}
 }
+
