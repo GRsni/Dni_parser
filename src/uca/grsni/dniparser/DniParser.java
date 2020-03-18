@@ -40,7 +40,7 @@ public class DniParser extends PApplet {
 
 		drawMenu();
 
-		updateAvisos();
+		updateWarnings();
 	}
 
 	public void mouseClicked() {
@@ -94,7 +94,11 @@ public class DniParser extends PApplet {
 		exitButton.show();
 	}
 
-	private void updateAvisos() {
+	public void addNewWarning(String content, int lifetime) {
+		avisos.add(new Warning(this, content));
+	}
+
+	private void updateWarnings() {
 		if (avisos.size() > 0) {
 			Warning a = avisos.get(0);
 			a.show();
@@ -147,8 +151,9 @@ public class DniParser extends PApplet {
 		}
 	}
 
-	public void addNewWarning(String content, int lifetime) {
-		avisos.add(new Warning(this, content, lifetime));
+	public class COLORS {
+		public final static int PRIMARY = 0xff008577;
+		public final static int PRIMARY_DARK = 0xff003d35;
+		public final static int ACCENT = 0xffaaaaaa;
 	}
 }
-

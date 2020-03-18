@@ -79,7 +79,6 @@ public class FileManager {
 			validLines = parser.getCorrectLines();
 		} catch (NullPointerException e) {
 			System.out.println(e.toString());
-			e.printStackTrace();
 			parent.addNewWarning("Error al cargar el archivo de texto.", 80);
 			return false;
 		}

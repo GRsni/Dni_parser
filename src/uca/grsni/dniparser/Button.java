@@ -2,6 +2,7 @@ package uca.grsni.dniparser;
 
 import processing.core.PApplet;
 import processing.core.PVector;
+import uca.grsni.dniparser.DniParser.COLORS;
 
 class Button {
 	private PApplet parent;
@@ -34,7 +35,7 @@ class Button {
 		parent.push();
 		parent.strokeWeight(1);
 		parent.noStroke();
-		parent.fill(0, 133, 120);
+		parent.fill(COLORS.PRIMARY);
 		parent.rect(pos.x, pos.y, w, h, cornerR);
 		parent.pop();
 	}
