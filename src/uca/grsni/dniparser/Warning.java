@@ -1,51 +1,77 @@
 package uca.grsni.dniparser;
 
 import processing.core.PApplet;
+import processing.core.PVector;
+import uca.grsni.dniparser.DniParser.COLORS;
 
 public class Warning {
 	PApplet parent;
 	String content;
-	int fadeout, maxLife;
-	float rectWidth, rectHeight;
+	PVector pos;
+	float w, h;
+	int fadeout, max_life; 
 
-	public Warning(PApplet parent, String content, int fadeoutTime) {
+	public Warning(PApplet parent, String content, PVector pos, float w, float h, int fadeout) {
 		this.parent = parent;
 		this.content = content;
-		this.maxLife = this.fadeout = fadeoutTime;
-		this.rectWidth = parent.textWidth(content) + 30;
-		this.rectHeight = 50;
+		this.fadeout = fadeout;
+		this.max_life = fadeout;
+		this.pos=pos;
+		this.w=w;
+		this.h=h;
 	}
 
 	Warning(PApplet parent, String content) {
-		this(parent, content, 100);
+		this(parent, content, new PVector(parent.width/2, parent.height/2), parent.textWidth(content)+15, 50,  100);
 	}
 
 	public void show() {
+		renderBox();
+		renderLifeBar();
+		renderContent();
+	}
+
+	private void renderBox() {
 		parent.push();
 		parent.rectMode(PApplet.CENTER);
-		parent.fill(50);
-		parent.rect(parent.width / 2, parent.height / 2, rectWidth, rectHeight);
-		parent.fill(255);
-		parent.textAlign(PApplet.CENTER);
-		parent.text(content, parent.width / 2, parent.height / 2 + 10);
-		showBar();
+		parent.stroke(COLORS.PRIMARY);
+		parent.fill(COLORS.PRIMARY);
+		parent.rect(pos.x, pos.y, w, h);
 		parent.pop();
 	}
 
-	private void showBar() {
+	private void renderLifeBar() {
 		parent.push();
-		parent.stroke(0xff44b81a);
-		parent.strokeWeight(5);
-		parent.strokeCap(PApplet.SQUARE);
-		float barLength = PApplet.map(fadeout, maxLife, 0, rectWidth, 0);
-		parent.line((parent.width - rectWidth) / 2, parent.height / 2 + rectHeight / 2 - 2,
-				(parent.width - rectWidth) / 2 + barLength, parent.height / 2 + rectHeight / 2 - 2);
+		parent.strokeWeight(2);
+		parent.stroke(COLORS.PRIMARY_DARK);
+		parent.strokeWeight(4);
+		float yOffset=h/2;
+		parent.line(pos.x-w/2+1, pos.y+yOffset, pos.x+calcLineBarLength()-w/2, pos.y+yOffset);
+		parent.pop();
+	}
+
+	public void renderContent() {
+		parent.push();
+		parent.fill(255);
+		parent.textAlign(PApplet.CENTER);
+		parent.text(content, parent.width / 2, parent.height / 2 + 10);
 		parent.pop();
 	}
 
 	public void update() {
 		fadeout--;
+	}
 
+	private int calculateContentAlpha() {
+		if (fadeout > max_life / 2) {
+			return 255;
+		} else {
+			return (int) PApplet.map(fadeout, max_life / 2, 0, 255, 0);
+		}
+	}
+	
+	private float calcLineBarLength() {
+		return PApplet.map(fadeout, max_life, 0, w, 0);
 	}
 
 	public boolean toDestroy() {

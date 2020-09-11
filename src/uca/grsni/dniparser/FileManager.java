@@ -5,10 +5,6 @@ import processing.data.JSONArray;
 import processing.data.JSONObject;
 import processing.data.Table;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Set;
-
 public class FileManager {
 	public DniParser parent;
 	private File text, json;
