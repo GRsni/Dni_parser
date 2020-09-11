@@ -1,39 +1,44 @@
 package uca.grsni.dniparser;
 
 import processing.core.PApplet;
+import processing.data.JSONArray;
 import processing.data.JSONObject;
+import processing.data.Table;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class FileManager {
 	public DniParser parent;
-	private InfoParser parser;
-
-	JSONObject fileObject;
-	ArrayList<String> validLines;
+	private File text, json;
+	private File outputFolder;
 
 	public FileManager(DniParser parent) {
 		this.parent = parent;
-		parser = new InfoParser(parent);
 	}
 
 	public void setParserTextFile(File file) {
-		parser.setTextFile(file);
+		this.text = file;
 	}
 
 	public void setParserJSONFile(File file) {
-		parser.setJSONFile(file);
+		this.json = file;
+	}
+
+	public void setOutputFolder(File folder) {
+		outputFolder = folder;
 	}
 
 	public void createNewJSONFromText() {
-		fileObject = new JSONObject();
+		JSONObject fileObject = new JSONObject();
 		JSONObject users = new JSONObject();
 		JSONObject ids = new JSONObject();
 
-		validLines = new ArrayList<String>();
+		ArrayList<String> validLines = loadLinesFromTextFile();
 
-		if (!loadLinesFromTextFile()) {
+		if (validLines == null) {
+			parent.addNewWarning("Error cargando los datos de texto.", 100);
 			return;
 		}
 
@@ -41,7 +46,8 @@ public class FileManager {
 			addUserToJSON(users, ids, dni);
 		}
 
-		addAnonUserToJSON(users, ids);
+		// Se añade el usuario anonimo
+		addUserToJSON(users, ids, "u99999999");
 
 		fileObject.setJSONObject("Users", users);
 		fileObject.setJSONObject("Ids", ids);
@@ -50,16 +56,19 @@ public class FileManager {
 				"Generado nuevo archivo de datos.");
 	}
 
-	public void appendNewAlumniToJSONFile() {
-
-		if (!loadJSONObjectsFromFile()) {
+	public void appendNewStudentsToJSONFile() {
+		JSONObject fileObject = loadJSONObjectsFromFile();
+		if (fileObject == null) {
+			parent.addNewWarning("Error cargando datos de archivo JSON", 100);
 			return;
 		}
 
 		JSONObject users = fileObject.getJSONObject("Users");
 		JSONObject ids = fileObject.getJSONObject("Ids");
 
-		if (!loadLinesFromTextFile()) {
+		ArrayList<String> validLines = loadLinesFromTextFile();
+		if (validLines == null) {
+			parent.addNewWarning("Error cargando los datos de texto", 100);
 			return;
 		}
 
@@ -73,28 +82,78 @@ public class FileManager {
 
 	}
 
-	private boolean loadLinesFromTextFile() {
-
-		try {
-			validLines = parser.getCorrectLines();
-		} catch (NullPointerException e) {
-			System.out.println(e.toString());
-			e.printStackTrace();
-			parent.addNewWarning("Error al cargar el archivo .txt .", 80);
-			return false;
+	public void createStudentsDataTables() {
+		JSONObject fileObject = loadJSONObjectsFromFile();
+		if (fileObject == null) {
+			parent.addNewWarning("Error cargando datos de archivo JSON", 100);
+			return;
 		}
-		return true;
+
+		JSONObject users = fileObject.getJSONObject("Users");
+		ArrayList<String> idList = getListOfIDsFromJSON(fileObject);
+
+		for (String id : idList) {
+			JSONObject studentData = users.getJSONObject(id);
+
+			JSONObject practicas = studentData.getJSONObject("practicas");
+			JSONObject torsion = practicas.getJSONObject("torsion");
+			if (torsion != null) {
+				Table datosTorsion = parseJSONDataIntoTable(torsion);
+			}
+
+			JSONObject pandeo = practicas.getJSONObject("pandeo");
+
+		}
+
+		// selectFolder("Elige la carpeta donde guardar los datos",
+		// "selectOutputFolder");
+
 	}
 
-	private boolean loadJSONObjectsFromFile() {
+	private ArrayList<String> getListOfIDsFromJSON(JSONObject fileObject) {
+		ArrayList<String> idList = new ArrayList<String>();
+		JSONObject ids = fileObject.getJSONObject("Ids");
+
+		Object[] keys = ids.keys().toArray();
+
+		for (Object key : keys) {
+			idList.add(ids.getString((String) key));
+		}
+
+		return idList;
+	}
+
+	private Table parseJSONDataIntoTable(JSONObject data) {
+		Table tabla = new Table();
+		Object[] keys = data.keys().toArray();
+
+		for (Object key : keys) {
+			tabla.addColumn((String));
+		}
+
+		return null;
+	}
+
+	private JSONObject loadJSONObjectsFromFile() {
+		JSONObject fileObject;
 		try {
-			fileObject = PApplet.loadJSONObject(parser.getJSONFile());
+			fileObject = PApplet.loadJSONObject(json);
 		} catch (Exception e) {
 			System.out.println(e.toString());
-			parent.addNewWarning("Error al cargar el archivo .json .", 80);
-			return false;
+			return null;
 		}
-		return true;
+		return fileObject;
+	}
+
+	private ArrayList<String> loadLinesFromTextFile() {
+		ArrayList<String> validLines;
+		try {
+			validLines = InfoParser.getCorrectLines(text);
+		} catch (NullPointerException e) {
+			System.out.println(e.toString());
+			return null;
+		}
+		return validLines;
 	}
 
 	private void addUserToJSON(JSONObject users, JSONObject ids, String uId) {
@@ -106,13 +165,9 @@ public class FileManager {
 		ids.setString(createRandomIndex(), uId);
 	}
 
-	private void addAnonUserToJSON(JSONObject users, JSONObject ids) {
-		addUserToJSON(users, ids, "u99999999");
-	}
-
 	private String createRandomIndex() {
 		return Long.toString(System.nanoTime()) + (int) (parent.random(1000000));
-	}	
+	}
 
 	private void saveJSONFile(JSONObject object, String filename, String warningContent) {
 		parent.saveJSONObject(object, filename);

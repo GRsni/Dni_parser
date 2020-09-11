@@ -43,7 +43,7 @@ public class DniParser extends PApplet {
 	}
 
 	public void mouseClicked() {
-		if (textHandler.inputB.inside(mouseX, mouseY)) {
+		if (textHandler.inside(mouseX, mouseY)) {
 			selectInput("Elige el archivo de texto:", "selectTextFile");
 		}
 		if (JSONHandler.inside(mouseX, mouseY)) {
@@ -53,7 +53,10 @@ public class DniParser extends PApplet {
 			manager.createNewJSONFromText();
 		}
 		if (addAlumni.inside(mouseX, mouseY)) {
-			manager.appendNewAlumniToJSONFile();
+			manager.appendNewStudentsToJSONFile();
+		}
+		if (extractDataFile.inside(mouseX, mouseY)) {
+			manager.createStudentsDataTables();
 		}
 		if (exitButton.inside(mouseX, mouseY)) {
 			exit();
@@ -64,8 +67,9 @@ public class DniParser extends PApplet {
 		if (key == '1') {
 			manager.createNewJSONFromText();
 		} else if (key == '2') {
-			manager.appendNewAlumniToJSONFile();
+			manager.appendNewStudentsToJSONFile();
 		} else if (key == '3') {
+			manager.createStudentsDataTables();
 		}
 	}
 
@@ -133,6 +137,17 @@ public class DniParser extends PApplet {
 			} else {
 				addNewWarning("Error al leer el archivo .json de la base de datos.", 150);
 			}
+		}
+	}
+
+	public void selectOutputFolder(File folder) {
+		if (folder == null) {
+			println("No folder selected");
+			addNewWarning("Directorio no seleccionado.", 100);
+		}else{
+			String folderPath=folder.getAbsolutePath();
+			println("user selected folder:" + folderPath);
+			manager.setOutputFolder(folder);
 		}
 	}
 

@@ -7,32 +7,15 @@ import processing.core.PApplet;
 
 class InfoParser {
 	DniParser parent;
-	File text, json;
 
 	public InfoParser(DniParser parent) {
 		this.parent = parent;
 	}
 
-	public void setTextFile(File file) {
-		this.text = file;
-	}
-
-	public File getTextFile() {
-		return text;
-	}
-
-	public void setJSONFile(File file) {
-		this.json = file;
-	}
-
-	public File getJSONFile() {
-		return json;
-	}
-
-	public ArrayList<String> getCorrectLines() {
+	public static ArrayList<String> getCorrectLines(File text) {
 		ArrayList<String> goodLines = new ArrayList<String>();
 
-		String[] lines = getLinesFromText();
+		String[] lines = getLinesFromText(text);
 		for (int i = 0; i < lines.length; i++) {
 			String possibleId = findValidIDInLine(lines[i]);
 			if (!possibleId.equals("")) {
@@ -43,11 +26,11 @@ class InfoParser {
 		return goodLines;
 	}
 
-	public String[] getLinesFromText() {
+	public static String[] getLinesFromText(File text) {
 		return PApplet.loadStrings(text);
 	}
 
-	private String findValidIDInLine(String line) {
+	private static String findValidIDInLine(String line) {
 		return UserIdExtractor.extract(line.toLowerCase());
 	}
 
