@@ -1,5 +1,8 @@
 package uca.grsni.dniparser;
 
+import java.io.File;
+import java.util.ArrayList;
+
 import processing.core.PApplet;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
@@ -124,7 +127,7 @@ public class FileManager {
 		Object[] keys = data.keys().toArray();
 
 		for (Object key : keys) {
-			tabla.addColumn((String));
+			tabla.addColumn();
 		}
 
 		return null;

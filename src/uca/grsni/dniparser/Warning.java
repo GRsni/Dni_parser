@@ -44,9 +44,10 @@ public class Warning {
 		parent.push();
 		parent.strokeWeight(2);
 		parent.stroke(COLORS.PRIMARY_DARK);
-		parent.strokeWeight(4);
-		float yOffset=h/2;
-		parent.line(pos.x-w/2+1, pos.y+yOffset, pos.x+calcLineBarLength()-w/2, pos.y+yOffset);
+		parent.strokeWeight(5);
+		parent.strokeCap(PApplet.SQUARE);
+		float yOffset=h/2-2;
+		parent.line(pos.x-w/2, pos.y+yOffset, pos.x+calcLineBarLength()-w/2, pos.y+yOffset);
 		parent.pop();
 	}
 
