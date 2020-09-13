@@ -9,20 +9,21 @@ public class Warning {
 	String content;
 	PVector pos;
 	float w, h;
-	int fadeout, max_life; 
+	int fadeout, max_life;
 
 	public Warning(PApplet parent, String content, PVector pos, float w, float h, int fadeout) {
 		this.parent = parent;
 		this.content = content;
 		this.fadeout = fadeout;
 		this.max_life = fadeout;
-		this.pos=pos;
-		this.w=w;
-		this.h=h;
+		this.pos = pos;
+		this.w = w;
+		this.h = h;
 	}
 
 	Warning(PApplet parent, String content) {
-		this(parent, content, new PVector(parent.width/2, parent.height/2), parent.textWidth(content)+15, 50,  100);
+		this(parent, content, new PVector(parent.width / 2, parent.height / 2), parent.textWidth(content) + 15, 35,
+				100);
 	}
 
 	public void show() {
@@ -46,15 +47,17 @@ public class Warning {
 		parent.stroke(COLORS.PRIMARY_DARK);
 		parent.strokeWeight(5);
 		parent.strokeCap(PApplet.SQUARE);
-		float yOffset=h/2-2;
-		parent.line(pos.x-w/2, pos.y+yOffset, pos.x+calcLineBarLength()-w/2, pos.y+yOffset);
+		float yOffset = h / 2 - 2;
+		parent.line(pos.x - w / 2, pos.y + yOffset, pos.x + calcLineBarLength() - w / 2, pos.y + yOffset);
 		parent.pop();
 	}
 
 	public void renderContent() {
 		parent.push();
 		parent.fill(255);
-		parent.textAlign(PApplet.CENTER);
+		parent.textAlign(PApplet.CENTER, PApplet.BOTTOM);
+		parent.textFont(DniParser.font_small);
+		parent.textSize(14);
 		parent.text(content, parent.width / 2, parent.height / 2 + 10);
 		parent.pop();
 	}
@@ -63,14 +66,6 @@ public class Warning {
 		fadeout--;
 	}
 
-	private int calculateContentAlpha() {
-		if (fadeout > max_life / 2) {
-			return 255;
-		} else {
-			return (int) PApplet.map(fadeout, max_life / 2, 0, 255, 0);
-		}
-	}
-	
 	private float calcLineBarLength() {
 		return PApplet.map(fadeout, max_life, 0, w, 0);
 	}

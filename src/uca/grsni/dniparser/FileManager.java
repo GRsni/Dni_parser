@@ -2,16 +2,21 @@ package uca.grsni.dniparser;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import processing.core.PApplet;
-import processing.data.JSONArray;
 import processing.data.JSONObject;
 import processing.data.Table;
+import processing.data.TableRow;
 
 public class FileManager {
 	public DniParser parent;
 	private File text, json;
 	private File outputFolder;
+
+	private static final String[] PRACTICA_KEYS = { "pId", "fecha", "enLab", "conManual", "datos", "valTeo",
+			"ampliTeo", "val1", "val2", "ampliExp", "errPes", "errMat", "resValido", "preg1", "preg2", "preg3",
+			"preg4" };
 
 	public FileManager(DniParser parent) {
 		this.parent = parent;
@@ -87,51 +92,110 @@ public class FileManager {
 			parent.addNewWarning("Error cargando datos de archivo JSON", 100);
 			return;
 		}
+		if (outputFolder == null) {
+			parent.addNewWarning("Debe seleccionar una carpeta de destino.", 100);
+			return;
+		}
+
+		String pathToFolder = outputFolder.getAbsolutePath() + File.separator + "datos" + File.separator;
 
 		JSONObject users = fileObject.getJSONObject("Users");
-		ArrayList<String> idList = getListOfIDsFromJSON(fileObject);
+		ArrayList<String> idList = getIdsFromIDList(fileObject.getJSONObject("Ids"));
 
 		for (String id : idList) {
+			pathToFolder += id + File.separator;
+
 			JSONObject studentData = users.getJSONObject(id);
 
 			JSONObject practicas = studentData.getJSONObject("practicas");
-			JSONObject torsion = practicas.getJSONObject("torsion");
-			if (torsion != null) {
-				Table datosTorsion = parseJSONDataIntoTable(torsion);
+			if (practicas != null) {
+				JSONObject torsion = practicas.getJSONObject("torsion");
+				if (torsion != null) {
+					Table torsionTable = parseJSONDataIntoTable(torsion);
+
+					parent.saveTable(torsionTable, pathToFolder + "torsion.csv");
+				}
+
+				JSONObject pandeo = practicas.getJSONObject("pandeo");
+				if (pandeo != null) {
+					Table pandeoTable = parseJSONDataIntoTable(pandeo);
+					parent.saveTable(pandeoTable, pathToFolder + "pandeo.csv");
+				}
 			}
 
-			JSONObject pandeo = practicas.getJSONObject("pandeo");
-
 		}
-
-		// selectFolder("Elige la carpeta donde guardar los datos",
-		// "selectOutputFolder");
 
 	}
 
-	private ArrayList<String> getListOfIDsFromJSON(JSONObject fileObject) {
-		ArrayList<String> idList = new ArrayList<String>();
-		JSONObject ids = fileObject.getJSONObject("Ids");
+	private ArrayList<String> getIdsFromIDList(JSONObject object) {
+		ArrayList<String> ids = new ArrayList<String>();
+		ArrayList<String> idKeys = getKeysInJSONObject(object);
 
-		Object[] keys = ids.keys().toArray();
-
-		for (Object key : keys) {
-			idList.add(ids.getString((String) key));
+		for (String key : idKeys) {
+			ids.add(object.getString(key));
 		}
 
-		return idList;
+		return ids;
+	}
+
+	private ArrayList<String> getKeysInJSONObject(JSONObject object) {
+		ArrayList<String> keys = new ArrayList<String>();
+
+		Object[] keysArray = object.keys().toArray();
+
+		for (Object key : keysArray) {
+			keys.add((String) key);
+		}
+		return keys;
 	}
 
 	private Table parseJSONDataIntoTable(JSONObject data) {
-		Table tabla = new Table();
-		Object[] keys = data.keys().toArray();
+		Table table = new Table();
+		ArrayList<String> entriesKeys = getKeysInJSONObject(data);
+		System.out.println(Arrays.toString(entriesKeys.toArray()));
 
-		for (Object key : keys) {
-			tabla.addColumn();
+		for (String key : PRACTICA_KEYS) {
+			table.addColumn(key);
+			System.out.println("Key: " + key);
 		}
 
-		return null;
+		for (String entryKey : entriesKeys) {
+			JSONObject entry = data.getJSONObject(entryKey);
+			TableRow row = table.addRow();
+			turnPracticaItemToTableRow(entry, row);
+		}
+
+		return table;
 	}
+
+//	private static final String[] PRACTICA_KEYS = { "pId", "fecha", "enLab", "conManual", "datos", "valTeo",
+//			"ampliTeo", "val1", "val2", "ampliExp", "errPes", "errMat", "resValido", "preg1", "preg2", "preg3",
+//			"preg4" };
+//	
+	private void turnPracticaItemToTableRow(JSONObject practica, TableRow row) {
+		row.setString(PRACTICA_KEYS[0], practica.getString(PRACTICA_KEYS[0])); //pId
+		row.setString(PRACTICA_KEYS[1], getDateString(practica.getString(PRACTICA_KEYS[1]))); //fecha
+		row.setString(PRACTICA_KEYS[2], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[2])));//enLab
+		row.setString(PRACTICA_KEYS[3], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[3])));//conManual
+		row.setString(PRACTICA_KEYS[4], practica.getString(PRACTICA_KEYS[4]));//datos
+		row.setFloat(PRACTICA_KEYS[5], practica.getFloat(PRACTICA_KEYS[5]));//valTeo
+		row.setFloat(PRACTICA_KEYS[6], practica.getFloat(PRACTICA_KEYS[6]));//ampliTeo
+		row.setFloat(PRACTICA_KEYS[7], practica.getFloat(PRACTICA_KEYS[7]));//val1
+		row.setFloat(PRACTICA_KEYS[8], practica.getFloat(PRACTICA_KEYS[8]));//val2
+		row.setFloat(PRACTICA_KEYS[9], practica.getFloat(PRACTICA_KEYS[9]));//ampliExp
+		row.setInt(PRACTICA_KEYS[10], practica.getInt(PRACTICA_KEYS[10]));//errPes
+		row.setInt(PRACTICA_KEYS[11], practica.getInt(PRACTICA_KEYS[11]));//errMat
+		row.setString(PRACTICA_KEYS[12], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[12])));//resValido
+		row.setString(PRACTICA_KEYS[13], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[13])));//preg1
+		row.setString(PRACTICA_KEYS[14], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[14])));//2
+		row.setString(PRACTICA_KEYS[15], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[15])));//3
+		row.setString(PRACTICA_KEYS[16], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[16])));//4
+		
+	}
+	
+		private String getDateString(String expanded) {
+			return expanded.replace(" ", "-").substring(0, 19);
+		}
 
 	private JSONObject loadJSONObjectsFromFile() {
 		JSONObject fileObject;

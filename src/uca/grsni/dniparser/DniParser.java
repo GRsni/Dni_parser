@@ -6,9 +6,10 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class DniParser extends PApplet {
-	private static InputButton textHandler, JSONHandler;
+	public static PFont font_small, font_big;
+	private static InputButton textHandler, JSONHandler, folderHandler;
 
-	private static Button createNewFile, addAlumni, extractDataFile, exitButton;
+	private static Button createNewFile, addStudents, extractDataFile, exitButton;
 	public static FileManager manager;
 	private static ArrayList<Warning> avisos = new ArrayList<Warning>();
 
@@ -24,15 +25,21 @@ public class DniParser extends PApplet {
 		surface.setTitle("Manual de laboratorio: Gestor de datos");
 		manager = new FileManager(this);
 		initButtons();
+
+		font_small = loadFont("../data/Calibri-14.vlw");
+		font_big = loadFont("../data/Calibri-30.vlw");
 	}
 
 	public void initButtons() {
-		textHandler = new InputButton(this, new PVector(30, 450), "", "Archivo .txt");
-		JSONHandler = new InputButton(this, new PVector(440, 450), "", "Archivo .json");
-		createNewFile = new Button(this, new PVector(700, 100), "", "1", 30, 30, 3);
-		addAlumni = new Button(this, new PVector(700, 150), "", "2", 30, 30, 3);
-		extractDataFile = new Button(this, new PVector(700, 200), "", "3", 30, 30, 3);
-		exitButton = new Button(this, new PVector(10, 10), "", "Salir", 40, 30, 3);
+		textHandler = new InputButton(this, new PVector(30, 350), "", "Archivo .txt");
+		JSONHandler = new InputButton(this, new PVector(30, 400), "", "Archivo .json");
+		folderHandler = new InputButton(this, new PVector(30, 450), "", "Carpeta");
+
+		createNewFile = new Button(this, new PVector(width / 2, 100), "",
+				"Crear nuevo archivo para importar a la base de datos");
+		addStudents = new Button(this, new PVector(width / 2, 150), "", "Añadir alumnos a la base de datos");
+		extractDataFile = new Button(this, new PVector(width/2, 200), "", "Obtener tabla de datos de los alumnos");
+		exitButton = new Button(this, new PVector(40, 40), "", "Salir", 40, 30, 3);
 	}
 
 	public void draw() {
@@ -40,7 +47,51 @@ public class DniParser extends PApplet {
 
 		drawMenu();
 
+		showWarnings();
 		updateWarnings();
+	}
+
+	private void drawMenu() {
+		push();
+		fill(0);
+		textAlign(CENTER, TOP);
+		textSize(30);
+		textFont(font_big);
+		text("Elige la opción adecuada: ", width / 2, 30);
+		pop();
+
+		drawButtons();
+	}
+
+	private void drawButtons() {
+		textHandler.show();
+		JSONHandler.show();
+		folderHandler.show();
+
+		createNewFile.show();
+		addStudents.show();
+		extractDataFile.show();
+		exitButton.show();
+	}
+
+	public void addNewWarning(String content, int lifetime) {
+		avisos.add(new Warning(this, content));
+	}
+
+	private void showWarnings() {
+		if (avisos.size() > 0) {
+			avisos.get(0).show();
+		}
+	}
+
+	private void updateWarnings() {
+		if (avisos.size() > 0) {
+			Warning a = avisos.get(0);
+			a.update();
+			if (a.toDestroy()) {
+				avisos.remove(a);
+			}
+		}
 	}
 
 	public void mouseClicked() {
@@ -50,10 +101,13 @@ public class DniParser extends PApplet {
 		if (JSONHandler.inside(mouseX, mouseY)) {
 			selectInput("Elige el archivo JSON:", "selectJSONFile");
 		}
+		if (folderHandler.inside(mouseX, mouseY)) {
+			selectFolder("Elige la carpeta de destino:", "selectOutputFolder");
+		}
 		if (createNewFile.inside(mouseX, mouseY)) {
 			manager.createNewJSONFromText();
 		}
-		if (addAlumni.inside(mouseX, mouseY)) {
+		if (addStudents.inside(mouseX, mouseY)) {
 			manager.appendNewStudentsToJSONFile();
 		}
 		if (extractDataFile.inside(mouseX, mouseY)) {
@@ -64,6 +118,54 @@ public class DniParser extends PApplet {
 		}
 	}
 
+	public void mousePressed() {
+		if (textHandler.inside(mouseX, mouseY)) {
+			textHandler.isClicked(true);
+		}
+		if (JSONHandler.inside(mouseX, mouseY)) {
+			JSONHandler.isClicked(true);
+		}
+		if (folderHandler.inside(mouseX, mouseY)) {
+			folderHandler.isClicked(true);
+		}
+		if (createNewFile.inside(mouseX, mouseY)) {
+			createNewFile.isClicked(true);
+		}
+		if (addStudents.inside(mouseX, mouseY)) {
+			addStudents.isClicked(true);
+		}
+		if (extractDataFile.inside(mouseX, mouseY)) {
+			extractDataFile.isClicked(true);
+		}
+		if (exitButton.inside(mouseX, mouseY)) {
+			exitButton.isClicked(true);
+		}
+	}
+
+	public void mouseReleased() {
+		if (textHandler.inside(mouseX, mouseY)) {
+			textHandler.isClicked(false);
+		}
+		if (JSONHandler.inside(mouseX, mouseY)) {
+			JSONHandler.isClicked(false);
+		}
+		if (folderHandler.inside(mouseX, mouseY)) {
+			folderHandler.isClicked(false);
+		}
+		if (createNewFile.inside(mouseX, mouseY)) {
+			createNewFile.isClicked(false);
+		}
+		if (addStudents.inside(mouseX, mouseY)) {
+			addStudents.isClicked(false);
+		}
+		if (extractDataFile.inside(mouseX, mouseY)) {
+			extractDataFile.isClicked(false);
+		}
+		if (exitButton.inside(mouseX, mouseY)) {
+			exitButton.isClicked(false);
+		}
+	}
+
 	public void keyPressed() {
 		if (key == '1') {
 			manager.createNewJSONFromText();
@@ -71,45 +173,6 @@ public class DniParser extends PApplet {
 			manager.appendNewStudentsToJSONFile();
 		} else if (key == '3') {
 			manager.createStudentsDataTables();
-		}
-	}
-
-	private void drawMenu() {
-		push();
-		fill(0);
-		textAlign(CENTER, TOP);
-		textSize(30);
-		text("Elige la opción adecuada: ", width / 2, 30);
-		textSize(20);
-		text("Crear nuevo archivo para importar a la base de datos:", width / 2, 100);
-		text("Añadir alumnos a la base de datos:", width / 2, 150);
-		text("Obtener tabla de datos de los alumnos:", width / 2, 200);
-		pop();
-
-		drawButtons();
-	}
-
-	private void drawButtons() {
-		textHandler.show();
-		JSONHandler.show();
-		createNewFile.show();
-		addAlumni.show();
-		extractDataFile.show();
-		exitButton.show();
-	}
-
-	public void addNewWarning(String content, int lifetime) {
-		avisos.add(new Warning(this, content));
-	}
-
-	private void updateWarnings() {
-		if (avisos.size() > 0) {
-			Warning a = avisos.get(0);
-			a.show();
-			a.update();
-			if (a.toDestroy()) {
-				avisos.remove(a);
-			}
 		}
 	}
 
@@ -148,11 +211,14 @@ public class DniParser extends PApplet {
 	public void selectOutputFolder(File folder) {
 		if (folder == null) {
 			println("No folder selected");
-			addNewWarning("Directorio no seleccionado.", 100);
-		}else{
-			String folderPath=folder.getAbsolutePath();
+			addNewWarning("Carpeta no seleccionada.", 100);
+		} else {
+			String folderPath = folder.getAbsolutePath();
 			println("user selected folder:" + folderPath);
-			manager.setOutputFolder(folder);
+			if (folder.isDirectory()) {
+				manager.setOutputFolder(folder);
+				folderHandler.setFileName(folder.getName());
+			}
 		}
 	}
 
@@ -166,7 +232,7 @@ public class DniParser extends PApplet {
 		}
 	}
 
-	 class COLORS {
+	class COLORS {
 		public final static int PRIMARY = 0xff008577;
 		public final static int PRIMARY_DARK = 0xff003d35;
 		public final static int ACCENT = 0xffaaaaaa;
