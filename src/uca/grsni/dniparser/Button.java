@@ -5,25 +5,29 @@ import processing.core.PVector;
 import uca.grsni.dniparser.DniParser.COLORS;
 
 class Button {
-	private PApplet parent;
+	private DniParser parent;
 	private String title = "", content = "";
 	public PVector pos;
 	public float w = 100, h = 30;
 	private int cornerR;
 	private boolean clicked = false;
 
-	public Button(PApplet parent, PVector pos, String title, String content) {
+	public Button(DniParser parent, PVector pos, String title, String content) {
 		this(parent, pos, title, content, parent.textWidth(content) + 30, 30, 3);
 	}
 
-	public Button(PApplet parent, PVector pos, String title, String content, float w, float h, int corner) {
+	public Button(DniParser parent, PVector pos, String title, String content, float w, float h, int corner) {
 		this.parent = parent;
 		this.pos = pos;
 		this.title = title;
 		this.content = content;
-		this.w = w;
+		this.w = calculateRectWidth(w);
 		this.h = h;
 		this.cornerR = corner;
+	}
+	
+	private float calculateRectWidth(float w) {
+		return DniParser.LOADED_FONTS?w:(w*1.2f);
 	}
 
 	public void show() {
@@ -49,7 +53,7 @@ class Button {
 	private void renderTitle() {
 		parent.push();
 		parent.textSize(14);
-		parent.textFont(DniParser.font_small);
+		parent.useTextFont(DniParser.font_small);
 		parent.fill(0);
 		parent.textAlign(PApplet.LEFT, PApplet.BOTTOM);
 		parent.text(title, pos.x + 10, pos.y - 5);
@@ -60,7 +64,7 @@ class Button {
 		parent.push();
 		parent.textAlign(PApplet.CENTER, PApplet.CENTER);
 		parent.textSize(15);
-		parent.textFont(DniParser.font_small);
+		parent.useTextFont(DniParser.font_small);
 		parent.fill(255);
 		parent.text(content, pos.x, pos.y);
 		parent.pop();

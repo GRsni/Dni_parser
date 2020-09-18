@@ -4,14 +4,16 @@ import processing.core.PVector;
 import processing.core.PApplet;
 
 class InputButton {
-	private PApplet parent;
+	private DniParser parent;
 	private String filename = "";
+	private PVector pos;
 
 	private Button inputB;
 	//TODO: add PVector to inputButton
-	public InputButton(PApplet parent, PVector pos, String title, String content) {
-		PVector buttonPos=new PVector(pos.x, pos.y+15);
+	public InputButton(DniParser parent, PVector pos, String title, String content) {
+		PVector buttonPos=new PVector(pos.x+80, pos.y+15);
 		inputB = new Button(parent, buttonPos, title, content, 120, 30, 0);
+		this.pos=pos;
 		this.parent = parent;
 	}
 
@@ -21,19 +23,20 @@ class InputButton {
 	}
 
 	private void renderFileName() {
-		renderFileNameBox();
+		renderContainerBox();
 		parent.push();
 		parent.textAlign(PApplet.LEFT, PApplet.CENTER);
 		parent.textSize(14);
-		parent.text(filename, inputB.pos.x-5 + inputB.w + 10, inputB.pos.y + inputB.h / 2 - 2);
+		parent.useTextFont(DniParser.font_small);
+		parent.text(filename, pos.x-5 + inputB.w + 10, pos.y + inputB.h / 2 - 2);
 		parent.pop();
 	}
 
-	private void renderFileNameBox() {
+	private void renderContainerBox() {
 		parent.push();
 		parent.fill(170);
 		parent.noStroke();
-		parent.rect(inputB.pos.x + inputB.w, inputB.pos.y, 200, 30);
+		parent.rect(pos.x + inputB.w, pos.y, 200, 30);
 		parent.pop();
 	}
 

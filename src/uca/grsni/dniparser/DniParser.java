@@ -8,6 +8,7 @@ import java.util.ArrayList;
 public class DniParser extends PApplet {
 	public static PFont font_small, font_big;
 	private static InputButton textHandler, JSONHandler, folderHandler;
+	public static boolean LOADED_FONTS = true;
 
 	private static Button createNewFile, addStudents, extractDataFile, exitButton;
 	public static FileManager manager;
@@ -24,13 +25,11 @@ public class DniParser extends PApplet {
 	public void setup() {
 		surface.setTitle("Manual de laboratorio: Gestor de datos");
 		manager = new FileManager(this);
+		initFonts();
 		initButtons();
-
-		font_small = loadFont("../data/Calibri-14.vlw");
-		font_big = loadFont("../data/Calibri-30.vlw");
 	}
 
-	public void initButtons() {
+	private void initButtons() {
 		textHandler = new InputButton(this, new PVector(30, 350), "", "Archivo .txt");
 		JSONHandler = new InputButton(this, new PVector(30, 400), "", "Archivo .json");
 		folderHandler = new InputButton(this, new PVector(30, 450), "", "Carpeta");
@@ -38,8 +37,23 @@ public class DniParser extends PApplet {
 		createNewFile = new Button(this, new PVector(width / 2, 100), "",
 				"Crear nuevo archivo para importar a la base de datos");
 		addStudents = new Button(this, new PVector(width / 2, 150), "", "Añadir alumnos a la base de datos");
-		extractDataFile = new Button(this, new PVector(width/2, 200), "", "Obtener tabla de datos de los alumnos");
+		extractDataFile = new Button(this, new PVector(width / 2, 200), "", "Obtener tabla de datos de los alumnos");
 		exitButton = new Button(this, new PVector(40, 40), "", "Salir", 40, 30, 3);
+	}
+
+	private void initFonts() {
+		if (fontExists("../Calibri-14.vlw")) {
+			font_small = loadFont("Calibri-14.vlw");
+			System.out.println("14 exists");
+		} else {
+			LOADED_FONTS = false;
+		}
+		if (fontExists("../Calibri-30.vlw")) {
+			font_big = loadFont("Calibri-30.vlw");
+		} else {
+			LOADED_FONTS = false;
+		}
+		System.out.println("LOADED: " + LOADED_FONTS);
 	}
 
 	public void draw() {
@@ -56,7 +70,7 @@ public class DniParser extends PApplet {
 		fill(0);
 		textAlign(CENTER, TOP);
 		textSize(30);
-		textFont(font_big);
+		useTextFont(font_big);
 		text("Elige la opción adecuada: ", width / 2, 30);
 		pop();
 
@@ -230,6 +244,17 @@ public class DniParser extends PApplet {
 			String extension = file.substring(lastIndex);
 			return extension.equals(ext);
 		}
+	}
+
+	public void useTextFont(PFont font) {
+		if (DniParser.LOADED_FONTS) {
+			textFont(font);
+		}
+	}
+
+	public static boolean fontExists(String filename) {
+		File file = new File(filename);
+		return file.exists();
 	}
 
 	class COLORS {

@@ -5,25 +5,29 @@ import processing.core.PVector;
 import uca.grsni.dniparser.DniParser.COLORS;
 
 public class Warning {
-	PApplet parent;
+	DniParser parent;
 	String content;
 	PVector pos;
 	float w, h;
 	int fadeout, max_life;
 
-	public Warning(PApplet parent, String content, PVector pos, float w, float h, int fadeout) {
+	public Warning(DniParser parent, String content, PVector pos, float w, float h, int fadeout) {
 		this.parent = parent;
 		this.content = content;
 		this.fadeout = fadeout;
 		this.max_life = fadeout;
 		this.pos = pos;
-		this.w = w;
+		this.w = calculateRectWidth(w);
 		this.h = h;
 	}
 
-	Warning(PApplet parent, String content) {
+	Warning(DniParser parent, String content) {
 		this(parent, content, new PVector(parent.width / 2, parent.height / 2), parent.textWidth(content) + 15, 35,
 				100);
+	}
+	
+	private float calculateRectWidth(float w) {
+		return DniParser.LOADED_FONTS?w:(w*1.2f);
 	}
 
 	public void show() {
@@ -56,7 +60,7 @@ public class Warning {
 		parent.push();
 		parent.fill(255);
 		parent.textAlign(PApplet.CENTER, PApplet.BOTTOM);
-		parent.textFont(DniParser.font_small);
+		parent.useTextFont(DniParser.font_small);
 		parent.textSize(14);
 		parent.text(content, parent.width / 2, parent.height / 2 + 10);
 		parent.pop();
