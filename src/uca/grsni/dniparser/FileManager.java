@@ -14,9 +14,8 @@ public class FileManager {
 	private File text, json;
 	private File outputFolder;
 
-	private static final String[] PRACTICA_KEYS = { "pId", "fecha", "enLab", "conManual", "datos", "valTeo",
-			"ampliTeo", "val1", "val2", "ampliExp", "errPes", "errMat", "resValido", "preg1", "preg2", "preg3",
-			"preg4" };
+	private static final String[] PRACTICA_KEYS = { "pId", "fecha", "enLab", "conManual", "datos", "valTeo", "ampliTeo",
+			"val1", "val2", "ampliExp", "errPes", "errMat", "resValido", "preg1", "preg2", "preg3", "preg4" };
 
 	public FileManager(DniParser parent) {
 		this.parent = parent;
@@ -56,8 +55,8 @@ public class FileManager {
 		fileObject.setJSONObject("Users", users);
 		fileObject.setJSONObject("Ids", ids);
 
-		saveJSONFile(fileObject, "data/databaseFile" + System.currentTimeMillis() + ".json",
-				"Generado nuevo archivo de datos.");
+		saveJSONFile(fileObject, "data/databaseFile" + System.currentTimeMillis() + ".json");
+		parent.addNewWarning("Generado nuevo archivo de datos.", 100);
 	}
 
 	public void appendNewStudentsToJSONFile() {
@@ -81,9 +80,38 @@ public class FileManager {
 				addUserToJSON(users, ids, dni);
 			}
 		}
-		saveJSONFile(fileObject, "data/databaseFile" + System.currentTimeMillis() + ".json",
-				"Añadidos nuevos alumnos al archivo.");
+		saveJSONFile(fileObject, "data/databaseFile" + System.currentTimeMillis() + ".json");
+		parent.addNewWarning("Añadidos nuevos alumnos al archivo.", 100);
 
+	}
+
+	private ArrayList<String> loadLinesFromTextFile() {
+		ArrayList<String> validLines;
+		try {
+			validLines = InfoParser.getCorrectLines(text);
+		} catch (NullPointerException e) {
+			System.out.println(e.toString());
+			return null;
+		}
+		return validLines;
+	}
+
+	private void addUserToJSON(JSONObject users, JSONObject ids, String uId) {
+		JSONObject user = new JSONObject();
+		user.setString("uId", uId);
+		user.setInt("numP", 0);
+
+		users.setJSONObject(uId, user);
+		ids.setString(createRandomIndex(), uId);
+	}
+
+	private String createRandomIndex() {
+		return Long.toString(System.nanoTime()) + (int) (parent.random(1000000));
+	}
+
+	private void saveJSONFile(JSONObject object, String filename) {
+		parent.saveJSONObject(object, filename);
+		System.out.println("Database file generated");
 	}
 
 	public void createStudentsDataTables() {
@@ -109,17 +137,18 @@ public class FileManager {
 
 			JSONObject practicas = studentData.getJSONObject("practicas");
 			if (practicas != null) {
-				JSONObject torsion = practicas.getJSONObject("torsion");
-				if (torsion != null) {
-					Table torsionTable = parseJSONDataIntoTable(torsion);
-
-					parent.saveTable(torsionTable, pathToFolder + "torsion.csv");
-				}
-
-				JSONObject pandeo = practicas.getJSONObject("pandeo");
-				if (pandeo != null) {
-					Table pandeoTable = parseJSONDataIntoTable(pandeo);
-					parent.saveTable(pandeoTable, pathToFolder + "pandeo.csv");
+				ArrayList<String> tiposPracticas = getKeysInJSONObject(practicas);
+				for (String tipo : tiposPracticas) {
+					JSONObject practica = practicas.getJSONObject(tipo);
+					if (practica != null) {
+						Table dataTable = parseJSONDataIntoTable(practica);
+						try {
+							parent.saveTable(dataTable, pathToFolder + tipo + ".csv", "csv");
+						} catch (Exception e) {
+							System.err.println("Error guardando excel de datos: " + e.getMessage());
+							parent.addNewWarning("Error guardando excel de datos.", 100);
+						}
+					}
 				}
 			}
 
@@ -152,11 +181,9 @@ public class FileManager {
 	private Table parseJSONDataIntoTable(JSONObject data) {
 		Table table = new Table();
 		ArrayList<String> entriesKeys = getKeysInJSONObject(data);
-		System.out.println(Arrays.toString(entriesKeys.toArray()));
 
 		for (String key : PRACTICA_KEYS) {
 			table.addColumn(key);
-			System.out.println("Key: " + key);
 		}
 
 		for (String entryKey : entriesKeys) {
@@ -168,34 +195,30 @@ public class FileManager {
 		return table;
 	}
 
-//	private static final String[] PRACTICA_KEYS = { "pId", "fecha", "enLab", "conManual", "datos", "valTeo",
-//			"ampliTeo", "val1", "val2", "ampliExp", "errPes", "errMat", "resValido", "preg1", "preg2", "preg3",
-//			"preg4" };
-//	
 	private void turnPracticaItemToTableRow(JSONObject practica, TableRow row) {
-		row.setString(PRACTICA_KEYS[0], practica.getString(PRACTICA_KEYS[0])); //pId
-		row.setString(PRACTICA_KEYS[1], getDateString(practica.getString(PRACTICA_KEYS[1]))); //fecha
-		row.setString(PRACTICA_KEYS[2], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[2])));//enLab
-		row.setString(PRACTICA_KEYS[3], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[3])));//conManual
-		row.setString(PRACTICA_KEYS[4], practica.getString(PRACTICA_KEYS[4]));//datos
-		row.setFloat(PRACTICA_KEYS[5], practica.getFloat(PRACTICA_KEYS[5]));//valTeo
-		row.setFloat(PRACTICA_KEYS[6], practica.getFloat(PRACTICA_KEYS[6]));//ampliTeo
-		row.setFloat(PRACTICA_KEYS[7], practica.getFloat(PRACTICA_KEYS[7]));//val1
-		row.setFloat(PRACTICA_KEYS[8], practica.getFloat(PRACTICA_KEYS[8]));//val2
-		row.setFloat(PRACTICA_KEYS[9], practica.getFloat(PRACTICA_KEYS[9]));//ampliExp
-		row.setInt(PRACTICA_KEYS[10], practica.getInt(PRACTICA_KEYS[10]));//errPes
-		row.setInt(PRACTICA_KEYS[11], practica.getInt(PRACTICA_KEYS[11]));//errMat
-		row.setString(PRACTICA_KEYS[12], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[12])));//resValido
-		row.setString(PRACTICA_KEYS[13], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[13])));//preg1
-		row.setString(PRACTICA_KEYS[14], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[14])));//2
-		row.setString(PRACTICA_KEYS[15], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[15])));//3
-		row.setString(PRACTICA_KEYS[16], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[16])));//4
-		
+		row.setString(PRACTICA_KEYS[0], practica.getString(PRACTICA_KEYS[0])); // pId
+		row.setString(PRACTICA_KEYS[1], getDateString(practica.getString(PRACTICA_KEYS[1]))); // fecha
+		row.setString(PRACTICA_KEYS[2], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[2])));// enLab
+		row.setString(PRACTICA_KEYS[3], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[3])));// conManual
+		row.setString(PRACTICA_KEYS[4], practica.getString(PRACTICA_KEYS[4]));// datos
+		row.setFloat(PRACTICA_KEYS[5], practica.getFloat(PRACTICA_KEYS[5]));// valTeo
+		row.setFloat(PRACTICA_KEYS[6], practica.getFloat(PRACTICA_KEYS[6]));// ampliTeo
+		row.setFloat(PRACTICA_KEYS[7], practica.getFloat(PRACTICA_KEYS[7]));// val1
+		row.setFloat(PRACTICA_KEYS[8], practica.getFloat(PRACTICA_KEYS[8]));// val2
+		row.setFloat(PRACTICA_KEYS[9], practica.getFloat(PRACTICA_KEYS[9]));// ampliExp
+		row.setInt(PRACTICA_KEYS[10], practica.getInt(PRACTICA_KEYS[10]));// errPes
+		row.setInt(PRACTICA_KEYS[11], practica.getInt(PRACTICA_KEYS[11]));// errMat
+		row.setString(PRACTICA_KEYS[12], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[12])));// resValido
+		row.setString(PRACTICA_KEYS[13], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[13])));// preg1
+		row.setString(PRACTICA_KEYS[14], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[14])));// 2
+		row.setString(PRACTICA_KEYS[15], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[15])));// 3
+		row.setString(PRACTICA_KEYS[16], Boolean.toString(practica.getBoolean(PRACTICA_KEYS[16])));// 4
+
 	}
-	
-		private String getDateString(String expanded) {
-			return expanded.replace(" ", "-").substring(0, 19);
-		}
+
+	private String getDateString(String expanded) {
+		return expanded.replace(" ", "-").substring(0, 19);
+	}
 
 	private JSONObject loadJSONObjectsFromFile() {
 		JSONObject fileObject;
@@ -206,36 +229,6 @@ public class FileManager {
 			return null;
 		}
 		return fileObject;
-	}
-
-	private ArrayList<String> loadLinesFromTextFile() {
-		ArrayList<String> validLines;
-		try {
-			validLines = InfoParser.getCorrectLines(text);
-		} catch (NullPointerException e) {
-			System.out.println(e.toString());
-			return null;
-		}
-		return validLines;
-	}
-
-	private void addUserToJSON(JSONObject users, JSONObject ids, String uId) {
-		JSONObject user = new JSONObject();
-		user.setString("uId", uId);
-		user.setInt("numP", 0);
-
-		users.setJSONObject(uId, user);
-		ids.setString(createRandomIndex(), uId);
-	}
-
-	private String createRandomIndex() {
-		return Long.toString(System.nanoTime()) + (int) (parent.random(1000000));
-	}
-
-	private void saveJSONFile(JSONObject object, String filename, String warningContent) {
-		parent.saveJSONObject(object, filename);
-		parent.addNewWarning(warningContent, 100);
-		System.out.println("Database file generated");
 	}
 
 }

@@ -9,7 +9,6 @@ class InputButton {
 	private PVector pos;
 
 	private Button inputB;
-	//TODO: add PVector to inputButton
 	public InputButton(DniParser parent, PVector pos, String title, String content) {
 		PVector buttonPos=new PVector(pos.x+80, pos.y+15);
 		inputB = new Button(parent, buttonPos, title, content, 120, 30, 0);
